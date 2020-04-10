@@ -32,21 +32,26 @@ NI_PCIe_6738(name='Dev2',  parent_device= NI6738_clock, clock_terminal='/Dev2/PF
 # DigitalOut(name='d1', parent_device=Dev1, connection='port0/line1')
 
 #magnetic transport USB_6229
+# NI_USB_6229(name='ni_usb_6229_1',
+#          parent_device=ni_usb_6229_1_clock,
+#          MAX_name='Dev3',
+#          clock_terminal='/Dev3/PFI0',
+#          num_AO=4,
+#          range_AO=[-10, 10],
+#          sample_rate_AO=700e3,
+#          static_AO=True,
+#          num_DO=16,
+#          sample_rate_DO=1e6,
+#          num_AI=8,
+#          clock_terminal_AI='/Dev3/PFI1',
+#          sample_rate_AI=1000,
+#          mode_AI='labscript',# 'labscript', 'gated', 'triggered'
+#          num_PFI=0)
 NI_USB_6229(name='ni_usb_6229_1',
          parent_device=ni_usb_6229_1_clock,
          MAX_name='Dev3',
          clock_terminal='/Dev3/PFI0',
-         num_AO=4,
-         range_AO=[-10, 10],
-         sample_rate_AO=700e3,
-         static_AO=True,
-         num_DO=16,
-         sample_rate_DO=1e6,
-         num_AI=8,
-         clock_terminal_AI='/Dev3/PFI1',
-         sample_rate_AI=1000,
-         mode_AI='labscript',# 'labscript', 'gated', 'triggered'
-         num_PFI=0)
+         clock_terminal_AI='/Dev3/PFI1')
 
 # TekScope(name = 'monitor1', addr='USB0::0x0699::0x0368::C102920::INSTR')
 # NovaTechDDS9M(name='novatechdds9m_2', parent_device=NT_COM4_clock, com_port='com4',
