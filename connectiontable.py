@@ -4,6 +4,7 @@ from labscript_devices.PulseBlasterUSB import PulseBlasterUSB
 from labscript_devices.PineBlaster import PineBlaster
 from labscript_devices.NI_DAQmx.labscript_devices import NI_DAQmx
 from labscript_devices.NI_DAQmx.labscript_devices import NI_PCIe_6738
+from labscript_devices.NI_DAQmx.labscript_devices import NI_USB_6229
 from labscript_devices.TekScope.labscript_devices import TekScope
 from labscript_devices.NovaTechDDS9M import NovaTechDDS9M
 
