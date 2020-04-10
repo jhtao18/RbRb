@@ -26,10 +26,7 @@ import_or_reload('labscriptlib.rbrb.shared.NI')
 # DDS(name='cooling_lock', parent_device=novatechdds9m_2, connection='channel 1')
 # StaticDDS(name='COM4_2', parent_device=novatechdds9m_2, connection='channel 2')
 # StaticDDS(name='COM4_3', parent_device=novatechdds9m_2, connection='channel 3')
-#
 
 if __name__ == '__main__':
 	start()
-	# a5.constant(0.5, value=0.3)
-	# a5.constant(0.7, value=0.0)
 	stop(1)
