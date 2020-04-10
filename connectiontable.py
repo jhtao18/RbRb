@@ -32,7 +32,7 @@ NI_PCIe_6738(name='Dev2',  parent_device= NI6738_clock, clock_terminal='/Dev2/PF
 # DigitalOut(name='d1', parent_device=Dev1, connection='port0/line1')
 
 #magnetic transport USB_6229
-NI_DAQmx(name='ni_usb_6229_1',
+NI_USB_6229(name='ni_usb_6229_1',
          parent_device=ni_usb_6229_1_clock,
          MAX_name='Dev3',
          clock_terminal='/Dev3/PFI0',
