@@ -54,7 +54,7 @@ NI_DAQmx(name='ni_usb_6229_1',
 # DDS(name='cooling_lock', parent_device=novatechdds9m_2, connection='channel 1')
 # StaticDDS(name='COM4_2', parent_device=novatechdds9m_2, connection='channel 2')
 # StaticDDS(name='COM4_3', parent_device=novatechdds9m_2, connection='channel 3')
-
+#
 
 if __name__ == '__main__':
 	start()
