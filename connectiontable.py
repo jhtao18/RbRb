@@ -50,8 +50,7 @@ NI_PCIe_6738(name='Dev2',  parent_device= NI6738_clock, clock_terminal='/Dev2/PF
 NI_USB_6229(name='ni_usb_6229_1',
          parent_device=ni_usb_6229_1_clock,
          MAX_name='Dev3',
-         clock_terminal='/Dev3/PFI0',
-         clock_terminal_AI='/Dev3/PFI1')
+         clock_terminal='/Dev3/PFI0')
 
 # TekScope(name = 'monitor1', addr='USB0::0x0699::0x0368::C102920::INSTR')
 # NovaTechDDS9M(name='novatechdds9m_2', parent_device=NT_COM4_clock, com_port='com4',
