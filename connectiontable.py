@@ -3,7 +3,6 @@ from labscript_utils import h5_lock
 from labscript_utils import import_or_reload
 from labscript_devices.PulseBlasterUSB import PulseBlasterUSB
 from labscript_devices.PineBlaster import PineBlaster
-from labscript_devices.NI_DAQmx.labscript_devices import NI_DAQmx
 from labscript_devices.TekScope.labscript_devices import TekScope
 from labscript_devices.NovaTechDDS9M import NovaTechDDS9M
 
@@ -17,7 +16,7 @@ ClockLine(name='ni_usb_6229_1_clock', pseudoclock=pb0.pseudoclock, connection='f
 # Trigger(name='scope_trigger', parent_device=pb0.direct_outputs,
         # connection='flag 16', trigger_edge_type='rising')
 
-import_or_reload('labscriptlib.rbrb.shared.NI_USB')
+import_or_reload('labscriptlib.rbrb.shared.NI')
 
 # TekScope(name = 'monitor1', addr='USB0::0x0699::0x0368::C102920::INSTR')
 # NovaTechDDS9M(name='novatechdds9m_2', parent_device=NT_COM4_clock, com_port='com4',
