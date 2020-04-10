@@ -9,7 +9,7 @@ from labscript_devices.NovaTechDDS9M import NovaTechDDS9M
 #PineBlaster(name='pineblaster_0', usbport='com4')
 PulseBlasterUSB(name='pb0', board_number=0)#, programming_scheme='pb_stop_programming/STOP')
 ClockLine(name='NI6738_clock', pseudoclock=pb0.pseudoclock, connection='flag 0')
-ClockLine(name='ni_usb_6229_1_clock', pseudoclock=pb0.pseudoclock, connection='flag 1')
+ClockLine(name='NI_USB1_clock', pseudoclock=pb0.pseudoclock, connection='flag 1')
 # DigitalOut(name='PB_12', parent_device=pb0.direct_outputs, connection='flag 12')
 # DigitalOut(name='PB_13', parent_device=pb0.direct_outputs, connection='flag 13')
 # DigitalOut(name='PB_14', parent_device=pb0.direct_outputs, connection='flag 14')
@@ -31,7 +31,7 @@ NI_PCIe_6738(name='Dev2',  parent_device= NI6738_clock, clock_terminal='/Dev2/PF
 
 #magnetic transport USB_6229
 NI_DAQmx(name='ni_usb_6229_1',
-         parent_device=ni_usb_6229_1_clock,
+         parent_device=NI_USB1_clock,
          MAX_name='Dev3',
          clock_terminal='/Dev3/PFI0',
          num_AO=4,

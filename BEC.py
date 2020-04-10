@@ -9,6 +9,7 @@ def prep(t):
 
 start()
 print(aa)
+prep(t)
 t = 0
 t += 1
 stop(t)
