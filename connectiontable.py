@@ -18,6 +18,7 @@ ClockLine(name='ni_usb_6229_1_clock', pseudoclock=pb0.pseudoclock, connection='f
 
 import_or_reload('labscriptlib.rbrb.shared.NI')
 
+
 # TekScope(name = 'monitor1', addr='USB0::0x0699::0x0368::C102920::INSTR')
 # NovaTechDDS9M(name='novatechdds9m_2', parent_device=NT_COM4_clock, com_port='com4',
               # baud_rate=19200, default_baud_rate=19200, update_mode='asynchronous')
