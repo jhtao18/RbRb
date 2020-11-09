@@ -104,9 +104,20 @@ transport_gradient_ramp = interp1d(
 # final_switch_y_frac=0.63
 # d2beta_final_dy2_1=155
 # d2beta_final_dy2_0=786
+y_coils = []
+tt = np.linspace(0,transport_time,200)
+for i in range(len(coils)):
+    y_coils.append(coils[i].r0[1])
+ys = transport_trajectory
+yy=ys(tt)
+t_of_y = interp1d(yy, tt, 'cubic', fill_value='extrapolate')
+t_coils = t_of_y(np.array(y_coils))
+
+
 transport = Transport(
     coils=coils,
     y_of_t=transport_trajectory,
+    t_coils=t_coils,
     t_final=transport_time,
     dBz_dz_of_t=transport_gradient_ramp,
     initial_switch_y_frac=initial_switch_y_frac,
@@ -121,21 +132,20 @@ transport = Transport(
 if __name__ == '__main__':
     start()
     curr = transport.currents_at_time(0.6)
-    for i in range(len(transport.coils)):
-	    print(transport.coils[i].r0,'aaa')
-    ys = transport.y_of_t
+
     from matplotlib import rc
     rc('text', usetex=False)
-    tt = np.linspace(0,transport_time,200)
+
     fig, ax = plt.subplots()
     cc = transport.currents_at_time(tt)
     for ncoil in range(len(curr)):
         ax.plot(tt, cc[ncoil], label=str(ncoil))
         ax.legend(ncol=2)
     figure('y')
-	yy=ys(tt)
+
     plot(tt, yy)
-	t_of_y = interp1d(yy,tt, 'cubic', fill_value='extrapolate')
+    scatter(t_coils, y_coils)
+    print(transport.t_coils)
     # figure('push')
     # plot(tt,cc[0 ])
     # figure('beta')

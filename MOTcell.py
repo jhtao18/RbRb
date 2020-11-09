@@ -45,6 +45,18 @@ def set_amp(ch, t, amp):
     ch.setamp(t, amp)
     # ch.setamp(t+nt_step, amp)
 
+def Channel_n(n):
+    if n==0:
+        return 4#biasx, t_biasx
+    if n in [1,5,9]:
+        return 0#curr0, t0
+    if n in [2,6]:
+        return 1#curr1, t1
+    if n in [3,7,10]:
+        return 2#curr2, t2
+    if n in [4,8,11]:
+        return 3#np.array(curr3), t3
+        
 class MOT:
     def __init__(self, t, cooling_freq, repump_freq, quad_curr):
         #Novatech beatnote lock
@@ -305,36 +317,36 @@ class MOT:
             t1_enable.go_low(t + tswitch[1])
 
 
-            t1_0.go_high(t + tswitch[2])
-            t2_enable.go_low(t + tswitch[2])
-            t1_enable.go_high(t + tswitch[2])
+            # t1_0.go_high(t + tswitch[2])
+            # t2_enable.go_low(t + tswitch[2])
+            # t1_enable.go_high(t + tswitch[2])
 
-            t2_0.go_high(t + tswitch[3])
-            t3_enable.go_low(t + tswitch[3])
-            t2_enable.go_high(t + tswitch[3])
+            # t2_0.go_high(t + tswitch[3])
+            # t3_enable.go_low(t + tswitch[3])
+            # t2_enable.go_high(t + tswitch[3])
 
-            t3_0.go_high(t + tswitch[4])
-            t4_enable.go_low(t + tswitch[4])
-            t3_enable.go_high(t + tswitch[4])
+            # t3_0.go_high(t + tswitch[4])
+            # t4_enable.go_low(t + tswitch[4])
+            # t3_enable.go_high(t + tswitch[4])
 
-            t4_0.go_high(t + tswitch[5])
-            t1_enable.go_low(t + tswitch[5])
-            t4_enable.go_high(t + tswitch[5])
+            # t4_0.go_high(t + tswitch[5])
+            # t1_enable.go_low(t + tswitch[5])
+            # t4_enable.go_high(t + tswitch[5])
 
-            t1_0.go_low(t + tswitch[6])
-            t1_1.go_high(t + tswitch[6])
-            t2_enable.go_low(t + tswitch[6])
-            t1_enable.go_high(t + tswitch[6])
+            # t1_0.go_low(t + tswitch[6])
+            # t1_1.go_high(t + tswitch[6])
+            # t2_enable.go_low(t + tswitch[6])
+            # t1_enable.go_high(t + tswitch[6])
 
-            t3_0.go_low(t + tswitch[7])
-            t3_1.go_high(t + tswitch[7])
-            t2_enable.go_low(t + tswitch[8])
+            # t3_0.go_low(t + tswitch[7])
+            # t3_1.go_high(t + tswitch[7])
+            # t2_enable.go_low(t + tswitch[8])
             
             
-            t4_0.go_low(t + tswitch[8])
-            t4_1.go_high(t + tswitch[8])
+            # t4_0.go_low(t + tswitch[8])
+            # t4_1.go_high(t + tswitch[8])
             
-            t1_enable.go_low(t + tswitch[9])
+            # t1_enable.go_low(t + tswitch[9])
         else:
             t2_enable.go_low(2*start+duration-t)
             t3_enable.go_low(2*start+duration-t - tswitch[0])
@@ -405,6 +417,29 @@ class MOT:
                 # self.t_I[ch,ind_t_tran_probe:-1] = 0
             # self.probe_yz(start+t_tran_probe+t_of_f, probe_yz_time, 'atom')
         # #probe along the line
+                
+        # #probe along the line at the center of certain coils.
+        t_coil_probe = transport.t_coils[ind_probe_coils]
+        ch_coil_probe = Channel_n(ind_probe_coils)
+
+        if t_coil_probe<=duration:
+            ind_t_coil_probe_start = round(t_coil_probe/duration*len(self.t_I[0]))
+            ind_t_coil_probe_end = round((t_coil_probe+dur_probe_coils)/duration*len(self.t_I[0]))
+            print(t_coil_probe, t_coil_probe+dur_probe_coils, len(self.t_I[0]))
+            curr_coil1 = self.t_I[ch_coil_probe,ind_t_coil_probe_start]*1.2
+            curr_coil2 = self.t_I[ch_coil_probe-1,ind_t_coil_probe_start]*1.2
+            curr_coil3 = self.t_I[ch_coil_probe+1,ind_t_coil_probe_start]*1.2
+            print(curr_coil1)
+            for ch in [0,1,2,3]:
+                self.t_I[ch,ind_t_coil_probe_start:-1] = 1
+            for ch in [4,5]:
+                self.t_I[ch,ind_t_coil_probe_start:-1] = 0
+            self.t_I[ch_coil_probe,ind_t_coil_probe_start:ind_t_coil_probe_end] = curr_coil1
+            self.t_I[ch_coil_probe-1,ind_t_coil_probe_start:ind_t_coil_probe_end] = curr_coil2
+            self.t_I[ch_coil_probe+1,ind_t_coil_probe_start:ind_t_coil_probe_end] = curr_coil3
+            
+            self.probe_yz(start+t_coil_probe+dur_probe_coils+t_of_f, probe_yz_time, 'atom')
+        # #probe along the line
         
         transport_currents_interp = [interp1d(
             self.t_t, self.t_I[ch,:], 'cubic', fill_value='extrapolate'
@@ -426,28 +461,28 @@ class MOT:
         t += duration
         #--------------transport ends------------------
         
-        #----------inverse---------------
-        # #probe along the line
-        # if t_tran_probe>duration:
-            # ind_t_tran_probe = round((1-t_tran_probe/duration)*len(self.t_I[0]))
-            # for ch in [0,1,2,3]:
-                # self.t_I[ch,0:ind_t_tran_probe] = 1
-            # for ch in [4,5]:
-                # self.t_I[ch,0:ind_t_tran_probe] = 0
-            # self.deload(start+t_tran_probe)
-            # self.probe_yz(start+t_tran_probe+t_of_f, probe_yz_time, 'atom')
-        # #probe along the line
-        self.new_transport_switch(t, duration, tswitch, order='inverse')
-        self.t_I = np.array([np.flip(self.t_I[ch,:]) for ch in range(0,4)])
-        transport_currents_interp = [interp1d(self.t_t, self.t_I[ch,:], 'cubic', fill_value='extrapolate') for ch in range(4)]
-        quad_MOT.customramp(t, duration, self.transport_currents, transport_currents_interp[0], samplerate=1/transport_step)
-        transport1.customramp(t, duration, self.transport_currents, transport_currents_interp[1], samplerate=1/transport_step)
-        transport2.customramp(t, duration, self.transport_currents, transport_currents_interp[2], samplerate=1/transport_step)
-        transport3.customramp(t, duration, self.transport_currents, transport_currents_interp[3], samplerate=1/transport_step)
-        # x_shim.customramp(t, bias_dur, LineRamp, B_bias_end[0], B_bias_start[0], samplerate=1/(bias_dur/2), units='A')
-        # y_shim.customramp(t, bias_dur, LineRamp, B_bias_end[1], B_bias_start[1], samplerate=1/(bias_dur/2), units='A')
-        # z_shim.customramp(t, bias_dur, LineRamp, B_bias_end[2], B_bias_start[2], samplerate=1/(bias_dur/2), units='A')
-        t += duration
+        # #----------inverse---------------
+        # # #probe along the line
+        # # if t_tran_probe>duration:
+            # # ind_t_tran_probe = round((1-t_tran_probe/duration)*len(self.t_I[0]))
+            # # for ch in [0,1,2,3]:
+                # # self.t_I[ch,0:ind_t_tran_probe] = 1
+            # # for ch in [4,5]:
+                # # self.t_I[ch,0:ind_t_tran_probe] = 0
+            # # self.deload(start+t_tran_probe)
+            # # self.probe_yz(start+t_tran_probe+t_of_f, probe_yz_time, 'atom')
+        # # #probe along the line
+        # self.new_transport_switch(t, duration, tswitch, order='inverse')
+        # self.t_I = np.array([np.flip(self.t_I[ch,:]) for ch in range(0,4)])
+        # transport_currents_interp = [interp1d(self.t_t, self.t_I[ch,:], 'cubic', fill_value='extrapolate') for ch in range(4)]
+        # quad_MOT.customramp(t, duration, self.transport_currents, transport_currents_interp[0], samplerate=1/transport_step)
+        # transport1.customramp(t, duration, self.transport_currents, transport_currents_interp[1], samplerate=1/transport_step)
+        # transport2.customramp(t, duration, self.transport_currents, transport_currents_interp[2], samplerate=1/transport_step)
+        # transport3.customramp(t, duration, self.transport_currents, transport_currents_interp[3], samplerate=1/transport_step)
+        # # x_shim.customramp(t, bias_dur, LineRamp, B_bias_end[0], B_bias_start[0], samplerate=1/(bias_dur/2), units='A')
+        # # y_shim.customramp(t, bias_dur, LineRamp, B_bias_end[1], B_bias_start[1], samplerate=1/(bias_dur/2), units='A')
+        # # z_shim.customramp(t, bias_dur, LineRamp, B_bias_end[2], B_bias_start[2], samplerate=1/(bias_dur/2), units='A')
+        # t += duration
 
         return t
         
@@ -482,9 +517,9 @@ if __name__ == '__main__':
 
     New_MOT = MOT(t, cooling_freq=cent, repump_freq=repump_freq, quad_curr=quad) #82.231 1->1' 84.688 1->2'
     t += 1e-3
-    # exec("New_MOT.probe_"+probe_direction+"(t, probe_"+probe_direction+"_time, 'bg')")
+    exec("New_MOT.probe_"+probe_direction+"(t, probe_"+probe_direction+"_time, 'bg')")
     t += 30e-3
-    t += New_MOT.probe_fluo(t, probe_fluo_time, 'bg')
+    # t += New_MOT.probe_fluo(t, probe_fluo_time, 'bg')
     t += 30e-3
     # New_MOT.probe_science(t, probe_yz_time, 'bg')
     t+= 30e-3
@@ -504,19 +539,19 @@ if __name__ == '__main__':
     
     
     # # t+=dur_transport*2
-    # # t = New_MOT.move(t, dur_tran_bias*ms, np.array(B_bias_final_quad), np.array(B_bias_tran))
+    t = New_MOT.move(t, dur_tran_bias*ms, np.array(B_bias_final_quad), np.array(B_bias_tran))
     # # New_MOT.fluorescence(t,t+2*dur_transport)
-    # t = New_MOT.new_transport(t, duration= dur_transport, B_bias_start=np.array(B_bias_tran), bias_r_yx=bias_ratio_yx)
+    t = New_MOT.new_transport(t, duration= dur_transport, B_bias_start=np.array(B_bias_tran), bias_r_yx=bias_ratio_yx)
     # # t = New_MOT.evap(t, dur_evap)
     
     New_MOT.deload(t)
     t += t_of_f
-    New_MOT.probe_fluo(t, probe_fluo_time, 'fluo_img')
+    # New_MOT.probe_fluo(t, probe_fluo_time, 'fluo_img')
     # New_MOT.probe_science(t, sci_probe_time, 'atom')
     # exec("New_MOT.probe_"+probe_direction+"(t, probe_"+probe_direction+"_time, 'atom')")
     t += 0.2
     # New_MOT.probe_science(t, sci_probe_time, 'probe')
-    # exec("New_MOT.probe_"+probe_direction+"(t, probe_"+probe_direction+"_time, 'probe')")
+    exec("New_MOT.probe_"+probe_direction+"(t, probe_"+probe_direction+"_time, 'probe')")
     
     
     # IAN: usually dark is taken here

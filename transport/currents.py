@@ -279,6 +279,7 @@ class Transport(object):
         self,
         coils,
         y_of_t,
+        t_coils,
         t_final=2.2,
         dBz_dz_of_t=120 * gauss_per_cm,
         initial_switch_y_frac=0.25,
@@ -318,6 +319,7 @@ class Transport(object):
     ):  
         self.coils = coils
         self.y_of_t = y_of_t
+        self.t_coils = t_coils
         if isinstance(dBz_dz_of_t, (float, int, np.integer)):
             dBz_dz_of_t = constant(dBz_dz_of_t)
         self.dBz_dz_of_t = dBz_dz_of_t
