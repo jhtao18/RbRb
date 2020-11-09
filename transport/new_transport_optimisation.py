@@ -23,7 +23,7 @@ coils = make_coils(
     SCIENCE_N_TURNS=SCIENCE_N_TURNS,
     INNER_TRANS_N_TURNS=INNER_TRANS_N_TURNS,
     OUTER_TRANS_N_TURNS=OUTER_TRANS_N_TURNS,
-    custom_bias=True,
+    custom_bias=False,
     MOT_coils_spacing_factor=MOT_coils_spacing_factor,
     science_coils_spacing_factor=science_coils_spacing_factor,
     inner_coils_spacing_factors=(
@@ -121,6 +121,8 @@ transport = Transport(
 if __name__ == '__main__':
     start()
     curr = transport.currents_at_time(0.6)
+    for i in range(len(transport.coils)):
+	    print(transport.coils[i].r0,'aaa')
     ys = transport.y_of_t
     from matplotlib import rc
     rc('text', usetex=False)
@@ -131,7 +133,9 @@ if __name__ == '__main__':
         ax.plot(tt, cc[ncoil], label=str(ncoil))
         ax.legend(ncol=2)
     figure('y')
-    plot(tt, ys(tt))
+	yy=ys(tt)
+    plot(tt, yy)
+	t_of_y = interp1d(yy,tt, 'cubic', fill_value='extrapolate')
     # figure('push')
     # plot(tt,cc[0 ])
     # figure('beta')

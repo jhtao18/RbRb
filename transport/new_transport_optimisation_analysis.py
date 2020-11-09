@@ -17,6 +17,10 @@ from labscriptlib.RbRb.transport.currents import two_coil_zero_beta
 from scipy.interpolate import interp1d
 
 df = data(path)
+curr_r0 = df['curr_r0']
+curr_r1 = df['curr_r1']
+curr_r2 = df['curr_r2']
+curr_r3 = df['curr_r3']
 BIAS_N_TURNS1 = df['BIAS_N_TURNS1']
 BIAS_N_TURNS2 = df['BIAS_N_TURNS2']
 INNER_TRANS_N_TURNS = df['INNER_TRANS_N_TURNS']
@@ -272,22 +276,22 @@ if __name__ == '__main__':
     r = 10/0.24
     t0, MOT_fluorecence = run.get_trace('curr0')
     t0-=t0[0]
-    curr0 = MOT_fluorecence*r/1
+    curr0 = MOT_fluorecence*r*0.956/curr_r0
     plt.plot((t0), curr0, label='curr0')
     
     t1, MOT_fluorecence = run.get_trace('curr1')
     t1-=t1[0]
-    curr1 = MOT_fluorecence*r/1.049
+    curr1 = MOT_fluorecence*r/1.049/1.14/curr_r1
     plt.plot((t1), curr1, label='curr1')
 
     t2, MOT_fluorecence = run.get_trace('curr2')
     t2-=t2[0]
-    curr2 = MOT_fluorecence*r/1.054
+    curr2 = MOT_fluorecence*r/1.054/curr_r2
     plt.plot((t2), curr2, label='curr2')
 
     t3, MOT_fluorecence = run.get_trace('curr3')
     t3-=t3[0]
-    curr3 = MOT_fluorecence*r/1.032
+    curr3 = MOT_fluorecence*r/1.032/curr_r3
     plt.plot((t3), curr3, label='curr3')
     
     
@@ -306,9 +310,21 @@ if __name__ == '__main__':
     # id_t = np.arange(0,len(t3), 10)
     # rat = curr3[id_t]/transport.currents_at_time(t3[id_t])[11]
     # plot(t3[id_t], rat)
-    for ii in range(12):
+    for ii in range(1,12):
         plot(tt, cc[ii])
     
+    cost_diff = np.sum(np.abs(cc[1:12]))/len(cc[1])-np.sum(curr0+curr1+curr2+curr3)/len(curr0)
+    print(cost_diff)
+    try:
+        target = df.at['Science_abs', 'roi_OD']
+    except Exception:
+        print('no roi_OD')
+        target = 0
     
-    calculate_B_field()
+    if cost_diff>0:
+        run.save_result('optimized_OD', target*np.exp(-cost_diff/2))
+        run.save_result('cost_diff', cost_diff)
+    else:
+        run.save_result('optimized_OD', target)
+    # calculate_B_field()
     show()

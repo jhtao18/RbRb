@@ -1,6 +1,9 @@
 from labscript import *
 from labscript_utils import h5_lock
 from labscript_utils import import_or_reload
+from labscript_utils.unitconversions.linear_coil_driver import BidirectionalCoilDriver
+from labscript_utils.unitconversions.AOMAMP import AOMAMP
+
 from labscript_devices.NI_DAQmx.labscript_devices import NI_USB_6229
 from labscript_devices.NI_DAQmx.labscript_devices import NI_PCIe_6738
 from labscript_devices.NI_DAQmx.labscript_devices import NI_DAQmx
@@ -9,10 +12,10 @@ from labscript_devices.NI_DAQmx.labscript_devices import NI_USB_6002
 
 NI_PCIe_6738(name='ni_pcie_6738',  parent_device= NI6738_clock, 
         MAX_name='Dev4', clock_terminal='/Dev4/PFI0', max_AO_sample_rate = 400e3)
-AnalogOut(name='Repump_int', parent_device=ni_pcie_6738, connection='ao2')
-AnalogOut(name='Cool_int', parent_device=ni_pcie_6738, connection='ao3')
-AnalogOut(name='Probe_int', parent_device=ni_pcie_6738, connection='ao4')
-AnalogOut(name='OptPump_int', parent_device=ni_pcie_6738, connection='ao5')
+AnalogOut(name='Repump_int', parent_device=ni_pcie_6738, connection='ao2', unit_conversion_class=AOMAMP, unit_conversion_parameters={'shift':0.057})
+AnalogOut(name='Cool_int', parent_device=ni_pcie_6738, connection='ao3', unit_conversion_class=AOMAMP, unit_conversion_parameters={'shift':0.058})
+AnalogOut(name='Probe_int', parent_device=ni_pcie_6738, connection='ao4', unit_conversion_class=AOMAMP, unit_conversion_parameters={'shift':0.060})
+AnalogOut(name='OptPump_int', parent_device=ni_pcie_6738, connection='ao5', unit_conversion_class=AOMAMP, unit_conversion_parameters={'shift':0.060})
 AnalogOut(name='evap_int', parent_device=ni_pcie_6738, connection='ao6')
 AnalogOut(name='ao7', parent_device=ni_pcie_6738, connection='ao7')
 # AnalogOut(name='ao2', parent_device=ni_pcie_6738, connection='ao2')
@@ -74,14 +77,20 @@ DigitalOut(name='do9', parent_device=ni_usb_6229_table2, connection='port0/line9
 # DigitalOut(name='Shutter_Repump', parent_device=ni_usb_6229_table2, connection='port0/line13')
 # DigitalOut(name='Shutter_Opt_pumping', parent_device=ni_usb_6229_table2, connection='port0/line14')
 # DigitalOut(name='Shutter_Probe', parent_device=ni_usb_6229_table2, connection='port0/line15')
-Shutter(name='Shutter_Cooling', parent_device=ni_usb_6229_table2, connection='port0/line12', delay=(3*ms, 2*ms))
-Shutter(name='Shutter_Repump', parent_device=ni_usb_6229_table2, connection='port0/line13', delay=(6*ms, 3*ms))
+Shutter(name='Shutter_Cooling', parent_device=ni_usb_6229_table2, connection='port0/line12', delay=(3*ms, 3*ms))
+Shutter(name='Shutter_Repump', parent_device=ni_usb_6229_table2, connection='port0/line15', delay=(6*ms, 3*ms))
 Shutter(name='Shutter_Opt_pumping', parent_device=ni_usb_6229_table2, connection='port0/line14', delay=(2.1*ms, 3.3*ms))#2.1,3.3
-Shutter(name='Shutter_Probe', parent_device=ni_usb_6229_table2, connection='port0/line15', delay=(3.3*ms, 3*ms))
+Shutter(name='Shutter_Probe', parent_device=ni_usb_6229_table2, connection='port0/line13', delay=(3.3*ms, 3*ms))
 AnalogOut(name='quad_MOT2', parent_device=ni_usb_6229_table2, connection='ao0')
-AnalogOut(name='x_shim', parent_device=ni_usb_6229_table2, connection='ao1')
-AnalogOut(name='y_shim', parent_device=ni_usb_6229_table2, connection='ao2')
-AnalogOut(name='z_shim', parent_device=ni_usb_6229_table2, connection='ao3')
+AnalogOut(name='x_shim', parent_device=ni_usb_6229_table2, connection='ao1', unit_conversion_class=BidirectionalCoilDriver, unit_conversion_parameters={'slope':1.96, 'shift':-0.11*1.96})
+AnalogOut(name='y_shim', parent_device=ni_usb_6229_table2, connection='ao2', unit_conversion_class=BidirectionalCoilDriver, unit_conversion_parameters={'slope':1.96, 'shift':0.076*1.96})
+AnalogOut(name='z_shim', parent_device=ni_usb_6229_table2, connection='ao3', unit_conversion_class=BidirectionalCoilDriver, unit_conversion_parameters={'slope':1.96, 'shift':0.004*1.96})
+AnalogIn(name='Cooling_monitor', parent_device=ni_usb_6229_table2, connection='ai0')
+AnalogIn(name='testin_table1', parent_device=ni_usb_6229_table2, connection='ai1')
+AnalogIn(name='testin_table4', parent_device=ni_usb_6229_table2, connection='ai2')
+AnalogIn(name='testin_table3', parent_device=ni_usb_6229_table2, connection='ai3')
+AnalogIn(name='Repump_monitor', parent_device=ni_usb_6229_table2, connection='ai4')
+AnalogIn(name='testin_table5', parent_device=ni_usb_6229_table2, connection='ai5')
 
 #-----------------------------------------------------------------------
 

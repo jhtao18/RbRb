@@ -4,14 +4,17 @@ from labscript_devices.FlyCapture2Camera.labscript_devices import FlyCapture2Cam
 from labscript_devices.IMAQdxCamera.labscript_devices import IMAQdxCamera
 from labscript_utils import import_or_reload
 
-MOT_flea_camera_attributes = {
-    'AcquisitionAttributes::PacketSize': 5184,
+MOT_XY_flea_camera_attributes = {
+    'AcquisitionAttributes::VideoMode': 'Format 7, Mode 0, 648 x 488',
+    'AcquisitionAttributes::PixelFormat': 'Mono 16',
+    # 'AcquisitionAttributes::VideoMode': '640 x 480 Mono 16 60.00 fps',
+    'AcquisitionAttributes::PacketSize': 1500,
     'AcquisitionAttributes::Timeout': 5000,
     'CameraAttributes::AutoExposure::Mode': 'Off',
     'CameraAttributes::Brightness::Mode': 'Ignored',
     'CameraAttributes::FrameRate::Mode': 'Auto',
     'CameraAttributes::Gain::Mode': 'Absolute',
-    'CameraAttributes::Gain::Value': '12.5',
+    'CameraAttributes::Gain::Value': '-3', # decrease me
     'CameraAttributes::Gamma::Mode': 'Off',
     'CameraAttributes::Sharpness::Mode': 'Off',
     # 'CameraAttributes::Shutter::Mode': 'Absolute',
@@ -19,75 +22,32 @@ MOT_flea_camera_attributes = {
     'CameraAttributes::Trigger::TriggerActivation': 'Level High',
     'CameraAttributes::Trigger::TriggerMode': 'Mode1',
     'CameraAttributes::Trigger::TriggerParameter': 0,
-    'CameraAttributes::Trigger::TriggerSource': 'Source 0'
+    'CameraAttributes::Trigger::TriggerSource': 'Source 0',
+    'AcquisitionAttributes::BitsPerPixel': '12-bit',
+    # 'AcquisitionAttributes::VideoMode': '640 x 480 Mono 16 60.00 fps',
+   # 'CameraAttributes::ImageFormatControl::PixelFormat': 'Mono 16', # IBS change
 }
-Science_flea_camera_attributes = {
-    'AcquisitionAttributes::AdvancedEthernet::Controller::DestinationMode': 'Unicast',
-    'AcquisitionAttributes::AdvancedEthernet::Controller::DestinationMulticastAddress': '239.192.0.1',
-    'AcquisitionAttributes::AdvancedEthernet::EventParameters::MaxOutstandingEvents': 50,
-    'AcquisitionAttributes::AdvancedGenicam::EventsEnabled': 1,
-    'AcquisitionAttributes::Bayer::Algorithm': 'Bilinear',
-    'AcquisitionAttributes::Bayer::GainB': 1.0,
-    'AcquisitionAttributes::Bayer::GainG': 1.0,
-    'AcquisitionAttributes::Bayer::GainR': 1.0,
-    'AcquisitionAttributes::Bayer::Pattern': 'Use hardware value',
-    'AcquisitionAttributes::IncompleteBufferMode': 'Ignore',
-    'AcquisitionAttributes::OutputImageType': 'Auto',
-    'AcquisitionAttributes::PacketSize': 1500,
+
+MOT_YZ_flea_camera_attributes = {
+    'AcquisitionAttributes::VideoMode': '640 x 480 Mono 16 60.00 fps',
+    # 'AcquisitionAttributes::PacketSize': 1500,
     'AcquisitionAttributes::Timeout': 5000,
-    'CameraAttributes::AcquisitionControl::AcquisitionMode': 'Continuous',
-    'CameraAttributes::AcquisitionControl::ExposureAuto': 'Off',
-    'CameraAttributes::AcquisitionControl::ExposureMode': 'Timed',
-    'CameraAttributes::AcquisitionControl::ExposureTime': 81.83717727661133,
-    'CameraAttributes::AcquisitionControl::TriggerActivation': 'Rising Edge',
-    'CameraAttributes::AcquisitionControl::TriggerMode': 'On',
-    'CameraAttributes::AcquisitionControl::TriggerSelector': 'Frame Start',
-    'CameraAttributes::AcquisitionControl::TriggerSource': 'Line 0',
-    'CameraAttributes::AnalogControl::GainAuto': 'Off',
-    'CameraAttributes::AnalogControl::Gain': 0,
-    'CameraAttributes::AnalogControl::GammaEnabled': 0,
-    'CameraAttributes::DeviceControl::DeviceUserID': 'XZ_Blackfly',
-    'CameraAttributes::ImageFormatControl::Height': 2048,
-    'CameraAttributes::ImageFormatControl::OffsetX': 0,
-    'CameraAttributes::ImageFormatControl::OffsetY': 0,
-    'CameraAttributes::ImageFormatControl::PixelFormat': 'Mono 8',
-    'CameraAttributes::ImageFormatControl::TestPattern': 'Off',
-    'CameraAttributes::ImageFormatControl::Width': 2448,
-    'CameraAttributes::UserSetControl::UserSetDefault': 'Default',
-    'CameraAttributes::UserSetControl::UserSetSelector': 'Default',
+    'CameraAttributes::AutoExposure::Mode': 'Off',
+    'CameraAttributes::Brightness::Mode': 'Ignored',
+    'CameraAttributes::FrameRate::Mode': 'Auto',
+    'CameraAttributes::Gain::Mode': 'Absolute',
+    'CameraAttributes::Gain::Value': '10', 
+    'CameraAttributes::Gamma::Mode': 'Off',
+    'CameraAttributes::Sharpness::Mode': 'Off',
+    # 'CameraAttributes::Shutter::Mode': 'Absolute',
+    # 'CameraAttributes::Shutter::Value': '0.000010',
+    'CameraAttributes::Trigger::TriggerActivation': 'Level High',
+    'CameraAttributes::Trigger::TriggerMode': 'Mode1',
+    'CameraAttributes::Trigger::TriggerParameter': 0,
+    'CameraAttributes::Trigger::TriggerSource': 'Source 0',
+    'AcquisitionAttributes::BitsPerPixel': '12-bit'
 }
-Science_flea_camera_attributes = {
- 'AcquisitionAttributes::AdvancedEthernet::Controller::DestinationMode': 'Unicast' ,
- 'CameraAttributes::AnalogControl::GainAuto': 'Off' ,
- 'CameraAttributes::AnalogControl::BlackLevelEnabled': '0' ,
-#  'CameraAttributes::AnalogControl::BlackLevel': '-10.367187' ,
- 'CameraAttributes::AnalogControl::SharpnessEnabled': '0' ,
-#  'CameraAttributes::AnalogControl::SharpnessAuto': 'Continuous' 
- 'CameraAttributes::AcquisitionControl::TriggerSelector': 'Exposure Active' ,
- 'CameraAttributes::AcquisitionControl::TriggerMode': 'On' ,
- 'CameraAttributes::AcquisitionControl::TriggerSource': 'Line 0' ,
- 'CameraAttributes::AcquisitionControl::TriggerActivation': 'Falling Edge' ,
- 'CameraAttributes::AcquisitionControl::ExposureMode': 'Trigger Width' ,
- 'CameraAttributes::AcquisitionControl::AcquisitionMode': 'Continuous' ,
-#  'CameraAttributes::AcquisitionControl::AcquisitionFrameRateAuto': 'Continuous' ,
-#  'CameraAttributes::AcquisitionControl::AcquisitionFrameRateEnabled': '1' ,
- 'CameraAttributes::AcquisitionControl::SingleFrameAcquisitionMode': 'Free Running' ,
- 'CameraAttributes::ImageFormatControl::PixelFormat': 'Mono 16' ,
- 'CameraAttributes::ImageFormatControl::Width': '2448' ,
- 'CameraAttributes::ImageFormatControl::Height': '2048' ,
- "CameraAttributes::ImageFormatControl::OffsetX": "0" ,
- "CameraAttributes::ImageFormatControl::OffsetY": "0" ,
- 'CameraAttributes::ImageFormatControl::VideoMode': '0' ,
- 'CameraAttributes::ImageFormatControl::BinningVertical': '1' ,
- 'AcquisitionAttributes::BitsPerPixel': 'Use hardware value' ,
- 'AcquisitionAttributes::ImageDecoderCopyMode': 'Auto' ,
- 'AcquisitionAttributes::IncompleteBufferMode': 'Ignore' ,
- 'AcquisitionAttributes::OutputImageType': 'Auto' ,
- 'AcquisitionAttributes::OverwriteMode': 'Get Newest' ,
- 'AcquisitionAttributes::PacketSize': '1500' ,
- 'AcquisitionAttributes::ReceiveTimestampMode': 'None' ,
- 'AcquisitionAttributes::Timeout': '2000' }
- 
+
 Science_flea_camera_attributes = {
     'AcquisitionAttributes::PacketSize': 1500,
     'CameraAttributes::Acquisition::AcquisitionMode': 'Continuous',
@@ -123,16 +83,17 @@ Science_flea_camera_attributes = {
     'CameraAttributes::ImageFormat::PixelFormat': 'Mono12'
 }
 # IN USE
-manual_mode_camera_attributes = MOT_flea_camera_attributes.copy()
+manual_mode_camera_attributes = MOT_XY_flea_camera_attributes.copy()
 manual_mode_camera_attributes['CameraAttributes::Trigger::TriggerMode'] = 'Mode3'
-IMAQdxCamera(name='MOT_flea', parent_device=camera_trigger_MOT_flea, connection='trigger', serial_number=0xB09D01009014EC, camera_attributes=MOT_flea_camera_attributes, manual_mode_camera_attributes=manual_mode_camera_attributes, orientation='side')
-# IMAQdxCamera(name='MOT_flea', parent_device=camera_trigger_Science_flea, connection='trigger', serial_number=0xF315BC7CB, camera_attributes=Science_flea_camera_attributes, manual_mode_camera_attributes=Science_flea_camera_attributes, orientation='side')
+IMAQdxCamera(name='MOT_XY_flea', parent_device=camera_trigger_MOT_XY_flea, connection='trigger', serial_number=0xB09D01009014EC, camera_attributes=MOT_XY_flea_camera_attributes, manual_mode_camera_attributes=manual_mode_camera_attributes, orientation='XY')
+manual_mode_camera_attributes = MOT_YZ_flea_camera_attributes.copy()
+manual_mode_camera_attributes['CameraAttributes::Trigger::TriggerMode'] = 'Mode3'
+IMAQdxCamera(name='MOT_YZ_flea', parent_device=camera_trigger_MOT_YZ_flea, connection='trigger', serial_number=0xB09D01009014EE, camera_attributes=MOT_YZ_flea_camera_attributes, manual_mode_camera_attributes=manual_mode_camera_attributes, orientation='YZ')
 
 manual_mode_camera_attributes = Science_flea_camera_attributes.copy()
 manual_mode_camera_attributes['CameraAttributes::Acquisition::Trigger::TriggerMode'] = 'Off'
-# IMAQdxCamera(name='Science_flea', parent_device=camera_trigger_Science_flea, connection='trigger', serial_number=0xB09DDCBFE1, camera_attributes=Science_flea_camera_attributes, manual_mode_camera_attributes=manual_mode_camera_attributes, orientation='science')
 IMAQdxCamera(name='Science_flea', parent_device=camera_trigger_Science_flea, connection='trigger', trigger_edge_type='rising', serial_number=0xF315BC7CB, camera_attributes=Science_flea_camera_attributes, manual_mode_camera_attributes=manual_mode_camera_attributes, orientation='science')
-# MOT_flea_camera_attributes = dict([['AcquisitionAttributes::AdvancedEthernet::Controller::DestinationMode', 'Unicast'],
+# MOT_XY_flea_camera_attributes = dict([['AcquisitionAttributes::AdvancedEthernet::Controller::DestinationMode', 'Unicast'],
 						# ['AcquisitionAttributes::AdvancedEthernet::EventParameters::MaxOutstandingEvents', '50'],
 						# ["AcquisitionAttributes::PacketSize", "1500"],
 						# ['CameraAttributes::Controls::Exposure::ExposureTimeAbs', "70"],
@@ -151,4 +112,4 @@ IMAQdxCamera(name='Science_flea', parent_device=camera_trigger_Science_flea, con
 #IMAQdxCamera(name='MOT_Mako', parent_device=camera_trigger_1, connection='trigger', trigger_edge_type='rising', serial_number=0x00F315C17A9, camera_attributes=IMAQdx_properties,orientation='side')
 
 #an unused but worked class for flea cam
-#FlyCapture2Camera(name='MOT_flea', parent_device=camera_trigger_flea, connection='trigger', serial_number=0x009014EC, camera_attributes=MOT_flea_camera_attributes, manual_mode_camera_attributes=manual_mode_camera_attributes, orientation='side')
+#FlyCapture2Camera(name='MOT_XY_flea', parent_device=camera_trigger_flea, connection='trigger', serial_number=0x009014EC, camera_attributes=MOT_XY_flea_camera_attributes, manual_mode_camera_attributes=manual_mode_camera_attributes, orientation='side')
