@@ -591,6 +591,6 @@ if __name__ == '__main__':
     # Shutter_Probe.close(t)
     # # t+=9
     # # plt.show()
-    t+=0.2
+    t+=7.2
     stop(t)
     
