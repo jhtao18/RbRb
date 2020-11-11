@@ -558,10 +558,10 @@ if __name__ == '__main__':
     
     
     # # t+=dur_transport*2
-    t = New_MOT.move(t, dur_tran_bias*ms, np.array(B_bias_final_quad), np.array(B_bias_tran))
+    # t = New_MOT.move(t, dur_tran_bias*ms, np.array(B_bias_final_quad), np.array(B_bias_tran))
     # New_MOT.fluorescence(t,t+dur_transport+2)
-    t = New_MOT.new_transport(t, duration= dur_transport, B_bias_start=np.array(B_bias_tran), bias_r_yx=bias_ratio_yx)
-    t = New_MOT.new_transport(t, duration= dur_transport, B_bias_start=np.array(B_bias_tran), bias_r_yx=bias_ratio_yx, inverse=True)
+    # t = New_MOT.new_transport(t, duration= dur_transport, B_bias_start=np.array(B_bias_tran), bias_r_yx=bias_ratio_yx)
+    # t = New_MOT.new_transport(t, duration= dur_transport, B_bias_start=np.array(B_bias_tran), bias_r_yx=bias_ratio_yx, inverse=True)
     # # t = New_MOT.evap(t, dur_evap)
     # t+= 10
     New_MOT.deload(t)
@@ -591,6 +591,6 @@ if __name__ == '__main__':
     # Shutter_Probe.close(t)
     # # t+=9
     # # plt.show()
-    t+=7.2
+    t+=2.2
     stop(t)
     
