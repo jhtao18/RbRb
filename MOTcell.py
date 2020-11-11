@@ -17,26 +17,15 @@ opt_z = -0.06
 import_or_reload('labscriptlib.RbRb.transport.new_transport_optimisation')
 from labscriptlib.RbRb.transport.new_transport_optimisation import transport
 tswitch = transport.t_switchover
-# print(t, tswitch)
-def Poly5(t, duration, c, w, B_bias=[0,0,0]):
-    f = t/duration
-    # y = c[0]+c[1]*f+c[2]*f**2+c[3]*f**3+c[4]*f**4
-    expr='('
-    for cmd in c:
-        ci = c.index(cmd)
-        wi = ci*2+1
-        expr += '+('
-        expr += cmd
-        #np.logical_and(w[2]<f, f<w[3])
-        ws = ['w[' + str(wi-1) + ']', 'w[' + str(wi) + ']']
-        expr += ')*np.logical_and(f>' + ws[0] + ', f<' + ws[1] + ')'
-    expr += ')'
-    # print(expr, w)
-    y = eval(expr)
-    # if np.max(y)<-10:
-        # print(f[0], y[0], '\n')
-    return y
-
+class current_switch:
+    def __init__(self, time_t0_on, time_t0_off, time_t1_on, time_t1_off, time_te_on, time_te_off):
+        self.time_t0_on = time_t0_on
+        self.time_t0_off = time_t0_off
+        self.time_t1_on = time_t1_on
+        self.time_t1_off = time_t1_off
+        self.time_te_on = time_te_on
+        self.time_te_off = time_te_off
+        
 def set_freq(ch, t, freq):
     ch.setfreq(t, freq)
     # ch.setfreq(t+nt_step, freq)
@@ -308,13 +297,28 @@ class MOT:
         Science_flea.expose(start-0.01*ms,'science_img', trigger_duration=duration, frametype=frametype)
         
         
-    def new_transport_switch(self, start, duration, tswitch, order='normal'):
+    def new_transport_switch(self, start, duration, switch):#tswitch, order='normal'):
         t = start
-        if order=='normal':
-            t2_enable.go_high(t)
-            t3_enable.go_high(t + tswitch[0])
-            t4_enable.go_high(t + tswitch[1]-0*ms)
-            t1_enable.go_low(t + tswitch[1])
+        for ch in range(4):
+            for time in switch[ch].time_t0_on:
+                # print(switch[ch].time_t0_on)
+                exec("t"+str(ch+1)+"_0.go_high("+str(t+time)+")")
+            for time in switch[ch].time_t0_off:
+                exec("t"+str(ch+1)+"_0.go_low("+str(t+time)+")")
+            for time in switch[ch].time_t1_on:
+                exec("t"+str(ch+1)+"_1.go_high("+str(t+time)+")")
+            for time in switch[ch].time_t1_off:
+                exec("t"+str(ch+1)+"_1.go_low("+str(t+time)+")")
+            for time in switch[ch].time_te_on:
+                exec("t"+str(ch+1)+"_enable.go_high("+str(t+time)+")")
+            # for time in switch[ch].time_te_off:
+                # exec("t"+str(ch+1)+"_enable.go_low("+str(t+time)+")")
+
+        # if order=='normal':
+            # t2_enable.go_high(t)
+            # t3_enable.go_high(t + tswitch[0])
+            # t4_enable.go_high(t + tswitch[1]-0*ms)
+            # t1_enable.go_low(t + tswitch[1])
 
 
             # t1_0.go_high(t + tswitch[2])
@@ -329,65 +333,66 @@ class MOT:
             # t4_enable.go_low(t + tswitch[4])
             # t3_enable.go_high(t + tswitch[4])
 
-            # t4_0.go_high(t + tswitch[5])
-            # t1_enable.go_low(t + tswitch[5])
-            # t4_enable.go_high(t + tswitch[5])
+            # # t4_0.go_high(t + tswitch[5])
+            # # t1_enable.go_low(t + tswitch[5])
+            # # t4_enable.go_high(t + tswitch[5])
 
-            # t1_0.go_low(t + tswitch[6])
-            # t1_1.go_high(t + tswitch[6])
-            # t2_enable.go_low(t + tswitch[6])
-            # t1_enable.go_high(t + tswitch[6])
+            # # t1_0.go_low(t + tswitch[6])
+            # # t1_1.go_high(t + tswitch[6])
+            # # t2_enable.go_low(t + tswitch[6])
+            # # t1_enable.go_high(t + tswitch[6])
 
-            # t3_0.go_low(t + tswitch[7])
-            # t3_1.go_high(t + tswitch[7])
-            # t2_enable.go_low(t + tswitch[8])
+            # # t3_0.go_low(t + tswitch[7])
+            # # t3_1.go_high(t + tswitch[7])
+            # # t2_enable.go_low(t + tswitch[8])
             
             
-            # t4_0.go_low(t + tswitch[8])
-            # t4_1.go_high(t + tswitch[8])
+            # # t4_0.go_low(t + tswitch[8])
+            # # t4_1.go_high(t + tswitch[8])
             
-            # t1_enable.go_low(t + tswitch[9])
-        else:
-            t2_enable.go_low(2*start+duration-t)
-            t3_enable.go_low(2*start+duration-t - tswitch[0])
-            t4_enable.go_low(2*start+duration-t - tswitch[1])
-            t1_enable.go_high(2*start+duration-t - tswitch[1])
+            # # t1_enable.go_low(t + tswitch[9])
+        # else:
+            # # t2_enable.go_low(2*start+duration-t)
+            # # t3_enable.go_low(2*start+duration-t - tswitch[0])
+            # # t4_enable.go_low(2*start+duration-t - tswitch[1])
+            # # t1_enable.go_high(2*start+duration-t - tswitch[1])
 
 
-            t1_0.go_low(2*start+duration-t - tswitch[2])
-            t2_enable.go_high(2*start+duration-t - tswitch[2])
-            t1_enable.go_low(2*start+duration-t - tswitch[2])
+            # # t1_0.go_low(2*start+duration-t - tswitch[2])
+            # # t2_enable.go_high(2*start+duration-t - tswitch[2])
+            # # t1_enable.go_low(2*start+duration-t - tswitch[2])
 
-            t2_0.go_low(2*start+duration-t - tswitch[3])
-            t3_enable.go_high(2*start+duration-t - tswitch[3])
-            t2_enable.go_low(2*start+duration-t - tswitch[3])
+            # # t2_0.go_low(2*start+duration-t - tswitch[3])
+            # # t3_enable.go_high(2*start+duration-t - tswitch[3])
+            # # t2_enable.go_low(2*start+duration-t - tswitch[3])
 
-            t3_0.go_low(2*start+duration-t - tswitch[4])
-            t4_enable.go_high(2*start+duration-t - tswitch[4])
-            t3_enable.go_low(2*start+duration-t - tswitch[4])
+            # # t3_0.go_low(2*start+duration-t - tswitch[4])
+            # # t4_enable.go_high(2*start+duration-t - tswitch[4])
+            # # t3_enable.go_low(2*start+duration-t - tswitch[4])
 
-            t4_0.go_low(2*start+duration-t - tswitch[5])
-            t1_enable.go_high(2*start+duration-t - tswitch[5])
-            t4_enable.go_low(2*start+duration-t - tswitch[5])
+            # # t4_0.go_low(2*start+duration-t - tswitch[5])
+            # # t1_enable.go_high(2*start+duration-t - tswitch[5])
+            # # t4_enable.go_low(2*start+duration-t - tswitch[5])
 
-            t1_0.go_high(2*start+duration-t - tswitch[6])
-            t1_1.go_low(2*start+duration-t - tswitch[6])
-            t2_enable.go_high(2*start+duration-t - tswitch[6])
-            t1_enable.go_low(2*start+duration-t - tswitch[6])
+            # # t1_0.go_high(2*start+duration-t - tswitch[6])
+            # # t1_1.go_low(2*start+duration-t - tswitch[6])
+            # # t2_enable.go_high(2*start+duration-t - tswitch[6])
+            # # t1_enable.go_low(2*start+duration-t - tswitch[6])
 
-            t3_0.go_high(2*start+duration-t - tswitch[7])
-            t3_1.go_low(2*start+duration-t - tswitch[7])
+            # # t3_0.go_high(2*start+duration-t - tswitch[7])
+            # # t3_1.go_low(2*start+duration-t - tswitch[7])
             
             
-            t4_0.go_high(2*start+duration-t - tswitch[8])
-            t4_1.go_low(2*start+duration-t - tswitch[8])
+            # # t4_0.go_high(2*start+duration-t - tswitch[8])
+            # # t4_1.go_low(2*start+duration-t - tswitch[8])
             
-            t1_enable.go_high(2*start+duration-t - tswitch[9])
+            # # t1_enable.go_high(2*start+duration-t - tswitch[9])
+            # pass
             
     def transport_currents(self, t, duration, transport_currents_interp_ch):
         return transport_currents_interp_ch(t)
         
-    def new_transport(self, start, duration, B_bias_start, bias_r_yx):
+    def new_transport(self, start, duration, B_bias_start, bias_r_yx, inverse=False):
         t = start
         # import_or_reload('labscriptlib.RbRb.transport.new_transport_optimisation')
         # from labscriptlib.RbRb.transport.new_transport_optimisation import transport
@@ -396,54 +401,62 @@ class MOT:
         curr_ratio=[curr_r0, curr_r1, curr_r2, curr_r3]
         from scipy.interpolate import interp1d
         self.t_t = np.arange(0, duration, transport_step)
+        I_coils = transport.currents_at_time(self.t_t)
+        if inverse:
+            I_coils = np.array([np.flip(I_coil) for I_coil in I_coils])
+        # #-------------#probe along the line at the center of certain coils.
+        # t_coil_probe = transport.t_coils[ind_probe_coils]-2*ms
+        # # ch_coil_probe = Channel_n(ind_probe_coils)
+        # if t_coil_probe<=duration:
+            # ind_t_coil_probe_start = round(t_coil_probe/duration*len(self.t_t))
+            # ind_t_coil_probe_end = min( round((t_coil_probe+dur_probe_coils)/duration*len(self.t_t)), round((t+duration)/duration*len(self.t_t)))
+            # # print(t_coil_probe, t_coil_probe+dur_probe_coils, len(self.t_I[0]))
+            # curr_coil1 = I_coils[ind_probe_coils, ind_t_coil_probe_start]
+            # curr_coil2 = I_coils[ind_probe_coils-1, ind_t_coil_probe_start]
+            # curr_coil3 = I_coils[ind_probe_coils+1, ind_t_coil_probe_start]
+            # # print(curr_coil1)
+            # for coil in range(len(I_coils)):
+                # I_coils[coil, ind_t_coil_probe_start:] = -0.01
+            # I_coils[ind_probe_coils,ind_t_coil_probe_start:ind_t_coil_probe_end] = curr_coil1
+            # I_coils[ind_probe_coils-1,ind_t_coil_probe_start:ind_t_coil_probe_end] = curr_coil2
+            # I_coils[ind_probe_coils+1,ind_t_coil_probe_start:ind_t_coil_probe_end] = curr_coil3
+            # # if t_coil_probe+dur_probe_coils > dur_transport:
+            # t1_enable.go_low(start+t_coil_probe+dur_probe_coils )
+            # t2_enable.go_low(start+t_coil_probe+dur_probe_coils)
+            # t3_enable.go_low(start+t_coil_probe+dur_probe_coils)
+            # t4_enable.go_low(start+t_coil_probe+dur_probe_coils)
+            # self.probe_yz(start+t_coil_probe+dur_probe_coils+t_of_f, probe_yz_time, 'atom')
+            # exec("New_MOT.probe_"+probe_direction+"(start+t_coil_probe+dur_probe_coils+t_of_f+0.2, probe_"+probe_direction+"_time, 'probe')")
+        # #-----------------probe along the line
+        
         self.t_I = np.zeros((6,len(self.t_t)))
         for ch in [0,2,3]:
-            self.t_I[ch,:] = transport.currents_for_channel(self.t_t, duration, ch+1, ratio=-1/40*curr_ratio[ch], B_bias=B_bias_start)
-        self.t_I[1,:] = transport.currents_for_channel(self.t_t, duration, 1+1, ratio=-1/40*10/3*curr_ratio[ch], B_bias=B_bias_start)
-            # if ch == 0: self.t_I[ch,:] = self.t_I[ch,:] + 0.025
-            # if ch == 1: self.t_I[ch,:] = self.t_I[ch,:] + 0.004
+            self.t_I[ch,:] = transport.currents_for_channel(self.t_t, duration, ch+1, ratio=-1/40*curr_ratio[ch], B_bias=B_bias_start, I_coils=I_coils)
+        self.t_I[1,:] = transport.currents_for_channel(self.t_t, duration, 1+1, ratio=-1/40*10/3*curr_ratio[ch], B_bias=B_bias_start, I_coils=I_coils)
         self.t_I[4,:] = transport.currents_for_channel(self.t_t, duration, 4+1, ratio=-0.5, B_bias=B_bias_start[0]) 
         self.t_I[5,:] = transport.currents_for_channel(self.t_t, duration, 4+1, ratio=-0.5*bias_ratio_yx, B_bias=B_bias_start[1])
-        # print(tswitch[1]-0.1, tswitch[1])
-        #comment by Mingshu after tuning PID for the curr3
-        # self.t_I[3] = self.t_I[3] - 0.12 * np.logical_and(tswitch[1]-0.1<self.t_t, self.t_t<=tswitch[1])
-        
-        # #probe along the line
-        # if t_tran_probe<=duration:
-            # ind_t_tran_probe = round(t_tran_probe/duration*len(self.t_I[0]))
-            # for ch in [0,1,2,3]:
-                # self.t_I[ch,ind_t_tran_probe:-1] = 1
-            # for ch in [4,5]:
-                # self.t_I[ch,ind_t_tran_probe:-1] = 0
-            # self.probe_yz(start+t_tran_probe+t_of_f, probe_yz_time, 'atom')
-        # #probe along the line
-                
-        # #probe along the line at the center of certain coils.
-        t_coil_probe = transport.t_coils[ind_probe_coils]
-        ch_coil_probe = Channel_n(ind_probe_coils)
-
-        if t_coil_probe<=duration:
-            ind_t_coil_probe_start = round(t_coil_probe/duration*len(self.t_I[0]))
-            ind_t_coil_probe_end = round((t_coil_probe+dur_probe_coils)/duration*len(self.t_I[0]))
-            print(t_coil_probe, t_coil_probe+dur_probe_coils, len(self.t_I[0]))
-            curr_coil1 = self.t_I[ch_coil_probe,ind_t_coil_probe_start]*1.2
-            curr_coil2 = self.t_I[ch_coil_probe-1,ind_t_coil_probe_start]*1.2
-            curr_coil3 = self.t_I[ch_coil_probe+1,ind_t_coil_probe_start]*1.2
-            print(curr_coil1)
-            for ch in [0,1,2,3]:
-                self.t_I[ch,ind_t_coil_probe_start:-1] = 1
-            for ch in [4,5]:
-                self.t_I[ch,ind_t_coil_probe_start:-1] = 0
-            self.t_I[ch_coil_probe,ind_t_coil_probe_start:ind_t_coil_probe_end] = curr_coil1
-            self.t_I[ch_coil_probe-1,ind_t_coil_probe_start:ind_t_coil_probe_end] = curr_coil2
-            self.t_I[ch_coil_probe+1,ind_t_coil_probe_start:ind_t_coil_probe_end] = curr_coil3
-            
-            self.probe_yz(start+t_coil_probe+dur_probe_coils+t_of_f, probe_yz_time, 'atom')
-        # #probe along the line
-        
         transport_currents_interp = [interp1d(
             self.t_t, self.t_I[ch,:], 'cubic', fill_value='extrapolate'
         ) for ch in range(6)]
+        
+        coil_sw_list = ['','00','00','00','00','10','10','10','10','01','01','01']
+        switch = [current_switch([],[],[],[],[],[]) for ch in range(4)]
+        for coil in range(1,len(I_coils)):
+            coil_dur = self.t_t[np.argwhere(I_coils[coil]>0)]
+            if len(coil_dur)>0:
+                st, end = coil_dur[0][0], coil_dur[-1][0]
+                switch[Channel_n(coil)].time_te_on.append(st)
+                switch[Channel_n(coil)].time_te_off.append(end)
+                coil_sw = coil_sw_list[coil]
+                if coil_sw[0]=='0':
+                    switch[Channel_n(coil)].time_t0_off.append(st)
+                elif coil_sw[0]=='1':
+                    switch[Channel_n(coil)].time_t0_on.append(st)
+                if coil_sw[1]=='0':
+                    switch[Channel_n(coil)].time_t1_off.append(st)
+                elif coil_sw[1]=='1':
+                    switch[Channel_n(coil)].time_t1_on.append(st)
+
         
         # x_shim.customramp(t, bias_dur, LineRamp, B_bias_start[0], B_bias_end[0], samplerate=1/(bias_dur/2), units='A')
         # y_shim.customramp(t, bias_dur, LineRamp, B_bias_start[1], B_bias_end[1], samplerate=1/(bias_dur/2), units='A')
@@ -453,7 +466,7 @@ class MOT:
        
         #-------------transport starts--------------------
         # Select which current supply powers which coil(pair) at each switchover time:
-        self.new_transport_switch(t, duration, tswitch, order='normal')
+        self.new_transport_switch(t, duration, switch)
         quad_MOT.customramp(t, duration, self.transport_currents, transport_currents_interp[0], samplerate=1/transport_step)
         transport1.customramp(t, duration, self.transport_currents, transport_currents_interp[1], samplerate=1/transport_step)
         transport2.customramp(t, duration, self.transport_currents, transport_currents_interp[2], samplerate=1/transport_step)
@@ -517,16 +530,20 @@ if __name__ == '__main__':
 
     New_MOT = MOT(t, cooling_freq=cent, repump_freq=repump_freq, quad_curr=quad) #82.231 1->1' 84.688 1->2'
     t += 1e-3
-    exec("New_MOT.probe_"+probe_direction+"(t, probe_"+probe_direction+"_time, 'bg')")
+    # exec("New_MOT.probe_"+probe_direction+"(t, probe_"+probe_direction+"_time, 'bg')")
     t += 30e-3
-    # t += New_MOT.probe_fluo(t, probe_fluo_time, 'bg')
+    t += New_MOT.probe_fluo(t, probe_fluo_time, 'bg')
     t += 30e-3
     # New_MOT.probe_science(t, probe_yz_time, 'bg')
     t+= 30e-3
     
+    # UV.go_high(t)
+    # t+=5
+    # UV.go_low(t)
+    
     t = New_MOT.load(t, load_time, B_bias_MOT, UV_onoff=False)
     
-    # MOT_YZ_flea.expose(t-10*ms,'MOT_fluo_img', trigger_duration=0.1*ms, frametype='fluo_img')
+    # # MOT_YZ_flea.expose(t-10*ms,'MOT_fluo_img', trigger_duration=0.1*ms, frametype='fluo_img')
     t = New_MOT.move(t, dur_MOT_move, np.array(B_bias_MOT), np.array(B_bias_move))
     t = New_MOT.compress(t, CMOT_dur, quad, compressed_MOT_quad, res+compress_freq_start*MHz, res+compress_freq_end*MHz, np.array(B_bias_move), np.array(B_bias_com)) # CMOT
 
@@ -535,29 +552,32 @@ if __name__ == '__main__':
     # # t = New_MOT.depump(t,4*ms) 
     # # t = New_MOT.grey_mol(t, 3, grey_cool_freq, grey_rep_freq) # grey molasses
     t=New_MOT.opt_pump(t, duration=dur_OptPumping*ms)
+    # # UV.go_high(t)
     t = New_MOT.mag_trap(t, duration=dur_magtrap*ms, quad_start=quad_trap, B_bias_start=np.array(B_bias_capture_quad), B_bias_final= np.array(B_bias_final_quad))
+    # # UV.go_low(t)
     
     
     # # t+=dur_transport*2
     t = New_MOT.move(t, dur_tran_bias*ms, np.array(B_bias_final_quad), np.array(B_bias_tran))
-    # # New_MOT.fluorescence(t,t+2*dur_transport)
+    # New_MOT.fluorescence(t,t+dur_transport+2)
     t = New_MOT.new_transport(t, duration= dur_transport, B_bias_start=np.array(B_bias_tran), bias_r_yx=bias_ratio_yx)
+    t = New_MOT.new_transport(t, duration= dur_transport, B_bias_start=np.array(B_bias_tran), bias_r_yx=bias_ratio_yx, inverse=True)
     # # t = New_MOT.evap(t, dur_evap)
-    
+    # t+= 10
     New_MOT.deload(t)
     t += t_of_f
-    # New_MOT.probe_fluo(t, probe_fluo_time, 'fluo_img')
+    New_MOT.probe_fluo(t, probe_fluo_time, 'fluo_img')
     # New_MOT.probe_science(t, sci_probe_time, 'atom')
     # exec("New_MOT.probe_"+probe_direction+"(t, probe_"+probe_direction+"_time, 'atom')")
-    t += 0.2
+    # t += 0.2
     # New_MOT.probe_science(t, sci_probe_time, 'probe')
-    exec("New_MOT.probe_"+probe_direction+"(t, probe_"+probe_direction+"_time, 'probe')")
+    # exec("New_MOT.probe_"+probe_direction+"(t, probe_"+probe_direction+"_time, 'probe')")
     
     
     # IAN: usually dark is taken here
     
     t+=0.3
-    New_MOT.fluorescence(0,t)
+    # New_MOT.fluorescence(0,t)
     
     New_MOT.__init__(t, cooling_freq=cent, repump_freq=repump_freq, quad_curr=quad)
     

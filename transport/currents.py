@@ -555,17 +555,19 @@ class Transport(object):
         return I
 
     @lru_cache()
-    def currents_for_channel(self, t, duration, channel, ratio, B_bias, base = 0):
+    def currents_for_channel(self, t, duration, channel, ratio, B_bias, base = 0, I_coils="x"):
         # if channel<=4:
             # r = -1/40
         # else: r = 0.5
-        I = self.currents_at_time(t)*ratio
-        # print(self.t_switchover[0])
+        if I_coils[0]=='x':
+            I = self.currents_at_time(t)*ratio
+        else:
+            I = I_coils*ratio
         if channel == 1 :
             ind = np.argwhere((-0.008<np.array(t)-self.t_switchover[2]) & (np.array(t)-self.t_switchover[2]<0 )) .flatten()
             I[5][ind] = 0.1       
             ind = np.argwhere((-0.010<np.array(t)-self.t_switchover[6]) & (np.array(t)-self.t_switchover[6]<0 )) .flatten()
-            I[9][ind] = 0.1
+            # I[9][ind] = 0.1
         if channel == 2 :
             ind = np.argwhere((-0.005<np.array(t)-self.t_switchover[3]) & (np.array(t)-self.t_switchover[3]<0 )) .flatten()
             I[6][ind] = 0.1       
@@ -573,10 +575,10 @@ class Transport(object):
             # I[6][ind] = I[6][ind] + np.linspace(0,0.7,len(ind))+ np.logspace(-1.8,-1,len(ind),endpoint= True) 
         if channel==3 :
             ind = np.argwhere((np.array(t)-self.t_switchover[0]<0 )) .flatten()
-            I[3][ind]=0.1        
+            # I[3][ind]=0.1        
         if channel==4 :
             ind = np.argwhere((np.array(t)-self.t_switchover[0]<0 )) .flatten()
-            I[4][ind]=1
+            # I[4][ind]=1
         if channel>=5:
             I = I + B_bias
             I = I.clip(-9.9,9.9)
