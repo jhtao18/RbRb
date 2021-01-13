@@ -2,6 +2,7 @@ import sys
 sys.path.append(r'C:\Users\RbRb\labscript-suite\userlib\labscriptlib\RbRb')
 from labscript_devices.FlyCapture2Camera.labscript_devices import FlyCapture2Camera
 from labscript_devices.IMAQdxCamera.labscript_devices import IMAQdxCamera
+from labscript_devices.PrincetonInstrumentsCamera.labscript_devices import PrincetonInstrumentsCamera
 from labscript_utils import import_or_reload
 
 MOT_XY_flea_camera_attributes = {
@@ -36,7 +37,7 @@ MOT_YZ_flea_camera_attributes = {
     'CameraAttributes::Brightness::Mode': 'Ignored',
     'CameraAttributes::FrameRate::Mode': 'Auto',
     'CameraAttributes::Gain::Mode': 'Absolute',
-    'CameraAttributes::Gain::Value': '10', 
+    'CameraAttributes::Gain::Value': '-2', 
     'CameraAttributes::Gamma::Mode': 'Off',
     'CameraAttributes::Sharpness::Mode': 'Off',
     # 'CameraAttributes::Shutter::Mode': 'Absolute',
@@ -82,11 +83,20 @@ Science_flea_camera_attributes = {
     'CameraAttributes::Controls::Gamma': 1.0,
     'CameraAttributes::ImageFormat::PixelFormat': 'Mono12'
 }
+
+PI_camera_attributes = {
+    'PixelFormat': 1,
+	'SensorTemperatureSetPoint': -25,
+	'TriggerSource': 1,
+	'TriggerDetermination': 3,
+	'TriggerResponse': 4,
+}
 # IN USE
 manual_mode_camera_attributes = MOT_XY_flea_camera_attributes.copy()
 manual_mode_camera_attributes['CameraAttributes::Trigger::TriggerMode'] = 'Mode3'
 IMAQdxCamera(name='MOT_XY_flea', parent_device=camera_trigger_MOT_XY_flea, connection='trigger', serial_number=0xB09D01009014EC, camera_attributes=MOT_XY_flea_camera_attributes, manual_mode_camera_attributes=manual_mode_camera_attributes, orientation='XY')
 manual_mode_camera_attributes = MOT_YZ_flea_camera_attributes.copy()
+
 manual_mode_camera_attributes['CameraAttributes::Trigger::TriggerMode'] = 'Mode3'
 IMAQdxCamera(name='MOT_YZ_flea', parent_device=camera_trigger_MOT_YZ_flea, connection='trigger', serial_number=0xB09D01009014EE, camera_attributes=MOT_YZ_flea_camera_attributes, manual_mode_camera_attributes=manual_mode_camera_attributes, orientation='YZ')
 
@@ -113,3 +123,5 @@ IMAQdxCamera(name='Science_flea', parent_device=camera_trigger_Science_flea, con
 
 #an unused but worked class for flea cam
 #FlyCapture2Camera(name='MOT_XY_flea', parent_device=camera_trigger_flea, connection='trigger', serial_number=0x009014EC, camera_attributes=MOT_XY_flea_camera_attributes, manual_mode_camera_attributes=manual_mode_camera_attributes, orientation='side')
+manual_mode_camera_attributes = PI_camera_attributes.copy()
+# PrincetonInstrumentsCamera(name='PI', parent_device=camera_trigger_PI, connection='trigger', trigger_edge_type='rising', camera_ID=None, camera_attributes=PI_camera_attributes)#, manual_mode_camera_attributes=manual_mode_camera_attributes)

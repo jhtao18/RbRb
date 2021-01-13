@@ -76,7 +76,8 @@ class MOT:
         Cooling_AOM.go_low(t)
         Repump_AOM.go_low(t)
         OptPump_AOM.go_low(t)
-        
+        UV.go_low(t)
+    # Initialize the shutters    
     # IAN: make "DefaultValues" method that init calls and that you call at end end of sequence.
     
     def load(self, start_time, load_time, B_bias, UV_onoff):
@@ -92,7 +93,6 @@ class MOT:
         set_amp(Cooling, t, 1)
         Cooling_AOM.go_high(t)
         Repump_AOM.go_high(t)
-        MOT_Probe_AOM.go_low(t)
         self.set_bias(t, B_bias)
         Cool_int.constant(t, mot_cool_int) # IBS: should be optimized, and set so 0 is 0
         Repump_int.constant(t, mot_rep_int)# IBS: should be optimized, and set so 0 is 0
@@ -181,6 +181,7 @@ class MOT:
         return start+duration
         
     def deload(self, start):
+        UV.go_low(start)
         Cooling_AOM.go_low(start-0*ms)
         Repump_AOM.go_low(start)
         OptPump_AOM.go_low(start)
@@ -226,7 +227,6 @@ class MOT:
     def probe_yz(self, start, duration, frametype):
         if not frametype=='bg':
             do8.go_high(start)
-            # Probe_int.constant(start-0.2*ms, probe_MOT_int) # IAN: analog is fast
             Probe_int.constant(start, probe_MOT_int)
             MOT_Probe_AOM.go_high(start)
             MOT_Probe_AOM.go_low(start+duration)
@@ -271,6 +271,7 @@ class MOT:
         
     def probe_fluo(self, start, duration, frametype):
         set_freq(Cooling, start-prob_adv, res+detun/16*MHz)
+        # do8.go_high(start)
         Cooling_AOM.go_high(start)
         Cool_int.constant(start, mot_cool_int)
         # Cooling_AOM.go_low(start+duration)
@@ -281,7 +282,7 @@ class MOT:
         # Repump_int.constant(start+duration, 0)
         Shutter_Cooling.go_high(start-prob_adv*6.5)
         Shutter_Repump.go_high(start-prob_adv*1)
-        print(start)
+        # print(start)
         MOT_YZ_flea.expose(start-0.01*ms,'fluo_img', trigger_duration=duration+0.01*ms, frametype=frametype)
         return start+duration
         
@@ -291,7 +292,7 @@ class MOT:
             MOT_Probe_AOM.go_high(start)
             MOT_Probe_AOM.go_low(start+duration)
             
-            # Shutter_Probe.open(start-prob_adv-3*ms)
+            Shutter_Probe.open(start-prob_adv)
             set_freq(Cooling, start-prob_adv, res)
             
         Science_flea.expose(start-0.01*ms,'science_img', trigger_duration=duration, frametype=frametype)
@@ -402,6 +403,10 @@ class MOT:
         from scipy.interpolate import interp1d
         self.t_t = np.arange(0, duration, transport_step)
         I_coils = transport.currents_at_time(self.t_t)
+        # import matplotlib.pyplot as plt
+        # for i in range(len(I_coils)):   plt.plot(self.t_t, I_coils[i], label=str(i))
+        # plt.legend()
+        # plt.show()
         if inverse:
             I_coils = np.array([np.flip(I_coil) for I_coil in I_coils])
         # #-------------#probe along the line at the center of certain coils.
@@ -511,12 +516,12 @@ class MOT:
         return t
         
 if __name__ == '__main__':
-    probe_yz_time = 0.024*ms
-    probe_xy_time = 0.013*ms
-    sci_probe_time = 0.048*ms
-    probe_fluo_time = 0.05*ms
+    probe_yz_time = 0.008*ms
+    probe_xy_time = 0.008*ms
+    probe_science_time = 0.008*ms
+    probe_fluo_time = 1*ms
 
-    B_bias_mol = (0,0,0)#*np.array([B_bias_mol_x,B_bias_mol_y,B_bias_mol_z])
+    B_bias_mol = (0,0,B_bias_mol_z)#*np.array([B_bias_mol_x,B_bias_mol_y,B_bias_mol_z])
     B_bias_optpump = np.array([B_bias_optpump_x,B_bias_optpump_y,B_bias_optpump_z])
     B_bias_capture_quad = np.array([B_bias_capture_quad_x,B_bias_capture_quad_y,B_bias_capture_quad_z])
     B_bias_final_quad = np.array([B_bias_final_quad_x,B_bias_final_quad_y,B_bias_final_quad_z])
@@ -530,57 +535,50 @@ if __name__ == '__main__':
 
     New_MOT = MOT(t, cooling_freq=cent, repump_freq=repump_freq, quad_curr=quad) #82.231 1->1' 84.688 1->2'
     t += 1e-3
-    # exec("New_MOT.probe_"+probe_direction+"(t, probe_"+probe_direction+"_time, 'bg')")
+    exec("New_MOT.probe_"+probe_direction+"(t, probe_"+probe_direction+"_time, 'bg')")#exec for abs imaging
     t += 30e-3
-    t += New_MOT.probe_fluo(t, probe_fluo_time, 'bg')
+    # t += New_MOT.probe_fluo(t, probe_fluo_time, 'bg') # fluo imaging
     t += 30e-3
-    # New_MOT.probe_science(t, probe_yz_time, 'bg')
+    # New_MOT.probe_science(t, probe_yz_time, 'bg') 
+    # New_MOT.probe_science(t, sci_probe_time, 'bg') #science cell abs imaging
     t+= 30e-3
     
-    # UV.go_high(t)
-    # t+=5
-    # UV.go_low(t)
     
-    t = New_MOT.load(t, load_time, B_bias_MOT, UV_onoff=False)
-    
-    # # MOT_YZ_flea.expose(t-10*ms,'MOT_fluo_img', trigger_duration=0.1*ms, frametype='fluo_img')
-    t = New_MOT.move(t, dur_MOT_move, np.array(B_bias_MOT), np.array(B_bias_move))
+    t = New_MOT.load(t, load_time, B_bias_MOT, UV_onoff=True)
+    # MOT_YZ_flea.expose(t-10*ms,'MOT_fluo_img', trigger_duration=0.1*ms, frametype='fluo_img')
+    # t = New_MOT.move(t, dur_MOT_move, np.array(B_bias_MOT), np.array(B_bias_move))
     t = New_MOT.compress(t, CMOT_dur, quad, compressed_MOT_quad, res+compress_freq_start*MHz, res+compress_freq_end*MHz, np.array(B_bias_move), np.array(B_bias_com)) # CMOT
 
 
     t = New_MOT.pol_grad(t, dur_mol, molasses_freq_start, molasses_freq_end, np.array(B_bias_mol)) # Molasses
     # # t = New_MOT.depump(t,4*ms) 
-    # # t = New_MOT.grey_mol(t, 3, grey_cool_freq, grey_rep_freq) # grey molasses
     t=New_MOT.opt_pump(t, duration=dur_OptPumping*ms)
-    # # UV.go_high(t)
     t = New_MOT.mag_trap(t, duration=dur_magtrap*ms, quad_start=quad_trap, B_bias_start=np.array(B_bias_capture_quad), B_bias_final= np.array(B_bias_final_quad))
-    # # UV.go_low(t)
     
     
-    # # t+=dur_transport*2
-    # t = New_MOT.move(t, dur_tran_bias*ms, np.array(B_bias_final_quad), np.array(B_bias_tran))
-    # New_MOT.fluorescence(t,t+dur_transport+2)
-    # t = New_MOT.new_transport(t, duration= dur_transport, B_bias_start=np.array(B_bias_tran), bias_r_yx=bias_ratio_yx)
+    # # t = New_MOT.move(t, dur_tran_bias*ms, np.array(B_bias_final_quad), np.array(B_bias_tran))
+
+    t = New_MOT.new_transport(t, duration= dur_transport, B_bias_start=np.array(B_bias_tran), bias_r_yx=bias_ratio_yx)
     # t = New_MOT.new_transport(t, duration= dur_transport, B_bias_start=np.array(B_bias_tran), bias_r_yx=bias_ratio_yx, inverse=True)
-    # # t = New_MOT.evap(t, dur_evap)
-    # t+= 10
+    # t = New_MOT.evap(t, dur_evap)
+    
     New_MOT.deload(t)
     t += t_of_f
-    New_MOT.probe_fluo(t, probe_fluo_time, 'fluo_img')
+    # New_MOT.probe_fluo(t, probe_fluo_time, 'fluo_img')
     # New_MOT.probe_science(t, sci_probe_time, 'atom')
-    # exec("New_MOT.probe_"+probe_direction+"(t, probe_"+probe_direction+"_time, 'atom')")
-    # t += 0.2
+    exec("New_MOT.probe_"+str(probe_direction)+"(t, probe_"+probe_direction+"_time, 'atom')")
+    t += 0.2
     # New_MOT.probe_science(t, sci_probe_time, 'probe')
-    # exec("New_MOT.probe_"+probe_direction+"(t, probe_"+probe_direction+"_time, 'probe')")
+    exec("New_MOT.probe_"+str(probe_direction)+"(t, probe_"+probe_direction+"_time, 'probe')")
     
     
-    # IAN: usually dark is taken here
     
     t+=0.3
+    # t = New_MOT.probe_fluo(t, probe_fluo_time, 'bg')
     # New_MOT.fluorescence(0,t)
     
     New_MOT.__init__(t, cooling_freq=cent, repump_freq=repump_freq, quad_curr=quad)
-    
+    # UV.go_high(t)
     
     # set_freq(Cooling, t-0.01, cent)
     # New_MOT.set_bias(t-0.01, [0,0,0])
@@ -591,6 +589,6 @@ if __name__ == '__main__':
     # Shutter_Probe.close(t)
     # # t+=9
     # # plt.show()
-    t+=2.2
+    t+=1
     stop(t)
     
